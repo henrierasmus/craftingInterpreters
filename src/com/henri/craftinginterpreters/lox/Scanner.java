@@ -55,6 +55,7 @@ public class Scanner {
 
     private void scanToken() {
         char c = advance();
+        System.out.println("change in c");
         switch (c) {
             case '(': addToken(LEFT_PAREN); break;
             case ')': addToken(RIGHT_PAREN); break;
@@ -82,8 +83,13 @@ public class Scanner {
                 if (match('/')) {
                     while (peek() != '\n' && !isAtEnd())
                         advance();
-                } if (match('*')) {
-                   // go until */
+                } else if (match('*')) {
+                    while (peek() != '*' && peekNext() != '/' && !isAtEnd()) {
+                        advance();
+                    }
+                    // Advance past '*' and '/'. This does not feel great look at it again.
+                    advance();
+                    advance();
                 } else {
                     addToken(SLASH);
                 }
