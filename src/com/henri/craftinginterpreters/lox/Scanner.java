@@ -82,8 +82,6 @@ public class Scanner {
                 if (match('/')) {
                     while (peek() != '\n' && !isAtEnd())
                         advance();
-                } if (match('*')) {
-                   // go until */
                 } else {
                     addToken(SLASH);
                 }
