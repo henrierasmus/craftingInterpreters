@@ -12,6 +12,7 @@ public class Lox {
     static boolean hadError = false;
     static boolean hadRuntimeError = false;
     private static final Interpreter interpreter = new Interpreter();
+
     public static void main(String[] args) throws IOException {
         if (args.length > 1) {
             System.out.println("Usage: jlox [script]");
@@ -24,7 +25,7 @@ public class Lox {
     }
 
     private static void runFile(String path) throws IOException {
-        byte [] bytes = Files.readAllBytes(Paths.get(path));
+        byte[] bytes = Files.readAllBytes(Paths.get(path));
         run(new String(bytes, Charset.defaultCharset()));
 
         if (hadError)
@@ -36,7 +37,7 @@ public class Lox {
     private static void runPrompt() throws IOException {
         InputStreamReader input = new InputStreamReader(System.in);
         BufferedReader reader = new BufferedReader(input);
-        for (;;) {
+        for (; ; ) {
             System.out.print("> ");
             String line = reader.readLine();
             if (line == null)
@@ -51,12 +52,18 @@ public class Lox {
         Scanner scanner = new Scanner(source);
         List<Token> tokens = scanner.scanTokens();
         Parser parser = new Parser(tokens);
-        Expr expression = parser.parse();
+        List<Stmt> statements = parser.parse();
 
         if (hadError)
             return;
 
-        interpreter.interpret(expression);
+        Resolver resolver = new Resolver(interpreter);
+
+        if (hadError)
+            return;
+
+        resolver.resolve(statements);
+        interpreter.interpret(statements);
     }
 
     static void error(int line, String message) {
@@ -65,7 +72,7 @@ public class Lox {
 
     private static void report(int line, String where, String message) {
         System.err.println(
-            "[line" + line + "] Error" + where + ": " + message
+                "[line" + line + "] Error" + where + ": " + message
         );
 
         hadError = true;
